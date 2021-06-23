@@ -153,8 +153,8 @@ void init(void)
     
     srand((unsigned int)time(NULL));
     
-    QtdX = 100;
-    QtdZ = 100;
+    QtdX = 10;
+    QtdZ = 10;
     
     InicializaCidade(QtdX, QtdZ);
     
@@ -179,9 +179,6 @@ void animate()
     }
     if (TempoTotal > 5.0)
     {
-        cout << "Tempo Acumulado: "  << TempoTotal << " segundos. " ;
-        cout << "Nros de Frames sem desenho: " << nFrames << endl;
-        cout << "FPS(sem desenho): " << nFrames/TempoTotal << endl;
         TempoTotal = 0;
         nFrames = 0;
     }
@@ -317,20 +314,38 @@ void DesenhaLadrilho(int corBorda, int corDentro)
 // Desenha elementos que compiem a cidade
 // **********************************************************************
 void DesenhaCidade(int QtdX, int QtdZ)
-{
+{   
+    glPushMatrix();
+    for (size_t i = 0; i <= QtdX; i++)
+    {
+        glPushMatrix();
+        for (size_t j = 0; j <= QtdZ; j++)
+        {
+            DesenhaLadrilho(Gray, Black);
+            glTranslatef(0, 0, 1);
 
-    glPushMatrix();
-        glTranslatef(0, 0, 0);
-        DesenhaLadrilho(Red, Black);
-        defineCor(Yellow);
-        DesenhaPredio(2);
+            if(i == QtdX/2 && j + 1 == QtdZ/2){
+            defineCor(Green);
+            DesenhaPredio(2);
+        }
+
+        }
+        glPopMatrix();
+        glTranslatef(1, 0, 0);
+    }
     glPopMatrix();
-    glPushMatrix();
-        glTranslatef(-1, 0, 0);
-        DesenhaLadrilho(Gray, Black);
-        defineCor(Green);
-        DesenhaPredio(1.2);
-    glPopMatrix();
+    // glPushMatrix();
+    //     glTranslatef(0, 0, 0);
+    //     DesenhaLadrilho(Red, Black);
+    //     defineCor(Yellow);
+    //     DesenhaPredio(2);
+    // glPopMatrix();
+    // glPushMatrix();
+    //     glTranslatef(-1, 0, 0);
+    //     DesenhaLadrilho(Gray, Black);
+    //     defineCor(Green);
+    //     DesenhaPredio(1.2);
+    // glPopMatrix();
 }
 
 
@@ -398,8 +413,8 @@ void PosicUser()
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0, 5, 8,   // Posi��o do Observador
-              0,0,0,     // Posi��o do Alvo
+    gluLookAt(4.5, 6, -1,   // Posi��o do Observador
+              4.5,0,5,     // Posi��o do Alvo
               0.0f,1.0f,0.0f); // UP
 
 
@@ -511,10 +526,10 @@ void display( void )
 	glMatrixMode(GL_MODELVIEW);
 
     glColor3f(1,1,1);
-    TracaBezier3Pontos();
+    // TracaBezier3Pontos();
     
     DesenhaCidade(QtdX,QtdZ);
-    DesenhaEm2D();
+    // DesenhaEm2D();
 
 	glutSwapBuffers();
 }
@@ -581,7 +596,6 @@ int main ( int argc, char** argv )
 	glutCreateWindow    ( "Computacao Grafica - Exemplo Basico 3D" ); 
 		
 	init ();
-    //system("pwd");
 	
 	glutDisplayFunc ( display );  
 	glutReshapeFunc ( reshape );
