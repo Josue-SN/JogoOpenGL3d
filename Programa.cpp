@@ -36,7 +36,8 @@ Temporizador T;
 double AccumDeltaT=0;
 
 #include "Ponto.h"
-#include "Personagem.h"
+#include "Personagem.cpp"
+#include "AABB.cpp"
 #include "ListaDeCoresRGB.h"
 
 GLfloat AspectRatio, angulo=0;
@@ -64,6 +65,8 @@ Ponto Curva1[3];
 // Qtd de ladrilhos do piso. Inicialzada na INIT
 int QtdX;
 int QtdZ;
+
+AABB Quadras[4];
 
 // Pai ta de celta
 Personagem Carro;
@@ -136,6 +139,16 @@ void InicializaCidade(int QtdX, int QtdZ)
         Cidade[QtdX-1][i].tipo = RUA;
         Cidade[QtdX/2][i].tipo = RUA;
     }
+}
+
+// HARDCODED
+void DefineBoundingBoxesQuadras(){
+    Quadras[0] = AABB();
+    Quadras[1] = AABB();
+    Quadras[2] = AABB();
+    Quadras[3] = AABB();
+    //Com mínimo em (1,0,1) e Máximo em (5,0,3)
+    Quadras[0].calculaAABB(Ponto(4,0,2), Ponto(0,0,0), Ponto(1,0,1));
 }
 
 
@@ -552,6 +565,7 @@ void display( void )
     // TracaBezier3Pontos();
     
     DesenhaCidade(QtdX,QtdZ);
+    DefineBoundingBoxesQuadras();
     DesenhaPersonagem();
     // DesenhaEm2D();
 
@@ -593,19 +607,35 @@ void keyboard ( unsigned char key, int x, int y )
 // **********************************************************************
 void arrow_keys ( int a_keys, int x, int y )  
 {
+    Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
 	switch ( a_keys ) 
 	{
 		case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
-            Carro.Posicao.z++;
+            Carro.avancaPosicao(Ponto(0, 0, 1));
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
+                cout << "Dentro da caixa de colisão\n";
+            }
 			break;
 	    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
-            Carro.Posicao.z--;
+            Carro.avancaPosicao(Ponto(0, 0, -1));
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
+                cout << "Dentro da caixa de colisão\n";
+            }
+                // Carro.avancaPosicao(Ponto(0, 0, 1));
 			break;
         case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
-            Carro.Posicao.x++;
+            Carro.avancaPosicao(Ponto(1, 0, 0));
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
+                cout << "Dentro da caixa de colisão\n";
+            }
+                // Carro.avancaPosicao(Ponto(-1, 0, 0));
 			break;
 	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
-            Carro.Posicao.x--;
+            Carro.avancaPosicao(Ponto(-1, 0, 0));
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
+                cout << "Dentro da caixa de colisão\n";
+            }
+                // Carro.avancaPosicao(Ponto(1, 0, 0));
             break;
 		default:
 			break;
