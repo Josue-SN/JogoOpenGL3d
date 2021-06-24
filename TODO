@@ -1,0 +1,10 @@
+Em nenhuma ordem específica:
+
+Caixas de colisão
+Curvas de Bezier dos aviões -> Aviões
+Objetos colecionáveis (gasolina)
+Lógica do jogo -> Interface em 2d
+Leitura do mapa por arquivo (ou outra forma de criar o mapa sem loops)
+Melhorias das mecânicas (MRU para o carro e aviões)
+Destruição dos pŕedios e obstrução das ruas
+Opção de câmera em 1° pessoa

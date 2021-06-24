@@ -36,6 +36,7 @@ Temporizador T;
 double AccumDeltaT=0;
 
 #include "Ponto.h"
+#include "Personagem.h"
 #include "ListaDeCoresRGB.h"
 
 GLfloat AspectRatio, angulo=0;
@@ -64,6 +65,8 @@ Ponto Curva1[3];
 int QtdX;
 int QtdZ;
 
+// Pai ta de celta
+Personagem Carro;
 
 // Representa o conteudo de uma celula do piso
 class Elemento{
@@ -120,6 +123,19 @@ void InicializaCidade(int QtdX, int QtdZ)
     for (int i=0;i<QtdZ;i++)
         for (int j=0;j<QtdX;j++)
             Cidade[i][j].tipo = VAZIO;
+    for (int i=1;i<QtdZ;i++)
+        for (int j=1;j<QtdX;j++)
+            Cidade[i][j].tipo = PREDIO;
+    for (int i = 0; i < QtdX; i++){
+        Cidade[i][0].tipo = RUA;
+        Cidade[i][QtdZ-1].tipo = RUA;
+        Cidade[i][QtdZ/2].tipo = RUA;
+    }
+    for (int i = 0; i < QtdZ; i++){
+        Cidade[0][i].tipo = RUA;
+        Cidade[QtdX-1][i].tipo = RUA;
+        Cidade[QtdX/2][i].tipo = RUA;
+    }
 }
 
 
@@ -153,8 +169,10 @@ void init(void)
     
     srand((unsigned int)time(NULL));
     
-    QtdX = 10;
-    QtdZ = 10;
+    QtdX = 11;
+    QtdZ = 11;
+
+    Carro.Posicao = Ponto(5, 0, 0);
     
     InicializaCidade(QtdX, QtdZ);
     
@@ -274,6 +292,21 @@ void DesenhaPredio(float altura)
     glPopMatrix();
     
 }
+
+// **********************************************************************
+//  Desenha o personagem
+// **********************************************************************
+void DesenhaPersonagem()
+{
+    glPushMatrix();
+        defineCor(Yellow);
+        glTranslatef(Carro.Posicao.x, Carro.Posicao.y, Carro.Posicao.z);
+        glScalef(0.2, 0.5, 0.5);
+        DesenhaCubo();
+    glPopMatrix();
+    
+}
+
 // **********************************************************************
 // void DesenhaLadrilho(int corBorda, int corDentro)
 // Desenha uma c�lula do piso.
@@ -316,36 +349,26 @@ void DesenhaLadrilho(int corBorda, int corDentro)
 void DesenhaCidade(int QtdX, int QtdZ)
 {   
     glPushMatrix();
-    for (size_t i = 0; i <= QtdX; i++)
+    for (size_t i = 0; i < QtdX; i++)
     {
         glPushMatrix();
-        for (size_t j = 0; j <= QtdZ; j++)
+        for (size_t j = 0; j < QtdZ; j++)
         {
-            DesenhaLadrilho(Gray, Black);
+            if(Cidade[i][j].tipo == VAZIO){
+                DesenhaLadrilho(Gray, Black);
+            }else if(Cidade[i][j].tipo == RUA){
+                DesenhaLadrilho(Red, Black);
+            }else if(Cidade[i][j].tipo == PREDIO){
+                DesenhaLadrilho(Gray, Black);
+                defineCor(Brown);
+                DesenhaPredio(1.2);
+            }
             glTranslatef(0, 0, 1);
-
-            if(i == QtdX/2 && j + 1 == QtdZ/2){
-            defineCor(Green);
-            DesenhaPredio(2);
-        }
-
         }
         glPopMatrix();
         glTranslatef(1, 0, 0);
     }
     glPopMatrix();
-    // glPushMatrix();
-    //     glTranslatef(0, 0, 0);
-    //     DesenhaLadrilho(Red, Black);
-    //     defineCor(Yellow);
-    //     DesenhaPredio(2);
-    // glPopMatrix();
-    // glPushMatrix();
-    //     glTranslatef(-1, 0, 0);
-    //     DesenhaLadrilho(Gray, Black);
-    //     defineCor(Green);
-    //     DesenhaPredio(1.2);
-    // glPopMatrix();
 }
 
 
@@ -395,6 +418,7 @@ void DefineLuz(void)
 //
 //
 // **********************************************************************
+Ponto PosObservador = Ponto(4.5, 6, -1);
 void PosicUser()
 {
 
@@ -404,16 +428,15 @@ void PosicUser()
     // Define o volume de visualiza��o sempre a partir da posicao do
     // observador
     if (ModoDeProjecao == 0)
-        glOrtho(-10, 10, -10, 10, 0, 20); // Projecao paralela Orthografica
+        glOrtho(-10, 15, -10, 15, 0, 20); // Projecao paralela Orthografica
     else gluPerspective(90,AspectRatio,0.01,1500); // Projecao perspectiva
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     
-
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(4.5, 6, -1,   // Posi��o do Observador
+    gluLookAt(PosObservador.x, PosObservador.y, PosObservador.z,   // Posi��o do Observador
               4.5,0,5,     // Posi��o do Alvo
               0.0f,1.0f,0.0f); // UP
 
@@ -529,6 +552,7 @@ void display( void )
     // TracaBezier3Pontos();
     
     DesenhaCidade(QtdX,QtdZ);
+    DesenhaPersonagem();
     // DesenhaEm2D();
 
 	glutSwapBuffers();
@@ -572,11 +596,17 @@ void arrow_keys ( int a_keys, int x, int y )
 	switch ( a_keys ) 
 	{
 		case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
-			glutFullScreen ( ); // Go Into Full Screen Mode
+            Carro.Posicao.z++;
 			break;
 	    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
-			glutInitWindowSize  ( 700, 500 ); 
+            Carro.Posicao.z--;
 			break;
+        case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
+            Carro.Posicao.x++;
+			break;
+	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
+            Carro.Posicao.x--;
+            break;
 		default:
 			break;
 	}
