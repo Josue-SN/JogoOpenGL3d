@@ -147,8 +147,7 @@ void DefineBoundingBoxesQuadras(){
     Quadras[1] = AABB();
     Quadras[2] = AABB();
     Quadras[3] = AABB();
-    //Com mínimo em (1,0,1) e Máximo em (5,0,3)
-    Quadras[0].calculaAABB(Ponto(4,0,2), Ponto(0,0,0), Ponto(1,0,1));
+    Quadras[0].calculaAABB(Ponto(3,0,3), Ponto(0,0,0), Ponto(1.5,0,1.5));
 }
 
 
@@ -314,6 +313,7 @@ void DesenhaPersonagem()
     glPushMatrix();
         defineCor(Yellow);
         glTranslatef(Carro.Posicao.x, Carro.Posicao.y, Carro.Posicao.z);
+        glTranslatef(-0.5, 0, -0.5);
         glScalef(0.2, 0.5, 0.5);
         DesenhaCubo();
     glPopMatrix();
@@ -362,6 +362,7 @@ void DesenhaLadrilho(int corBorda, int corDentro)
 void DesenhaCidade(int QtdX, int QtdZ)
 {   
     glPushMatrix();
+    glTranslatef(-0.5, 0, -0.5);
     for (size_t i = 0; i < QtdX; i++)
     {
         glPushMatrix();
@@ -607,17 +608,18 @@ void keyboard ( unsigned char key, int x, int y )
 // **********************************************************************
 void arrow_keys ( int a_keys, int x, int y )  
 {
-    Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
 	switch ( a_keys ) 
 	{
 		case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(0, 0, 1));
+            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
             if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
                 cout << "Dentro da caixa de colisão\n";
             }
 			break;
 	    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(0, 0, -1));
+            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
             if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
                 cout << "Dentro da caixa de colisão\n";
             }
@@ -625,6 +627,7 @@ void arrow_keys ( int a_keys, int x, int y )
 			break;
         case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(1, 0, 0));
+            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
             if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
                 cout << "Dentro da caixa de colisão\n";
             }
@@ -632,6 +635,7 @@ void arrow_keys ( int a_keys, int x, int y )
 			break;
 	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(-1, 0, 0));
+            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
             if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
                 cout << "Dentro da caixa de colisão\n";
             }
@@ -652,7 +656,7 @@ int main ( int argc, char** argv )
 	glutInit            ( &argc, argv ); 
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
 	glutInitWindowPosition (0,0);
-	glutInitWindowSize  ( 700, 700 );
+	glutInitWindowSize  ( 1280, 720 );
 	glutCreateWindow    ( "Computacao Grafica - Exemplo Basico 3D" ); 
 		
 	init ();

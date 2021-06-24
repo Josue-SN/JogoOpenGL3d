@@ -6,6 +6,7 @@ void AABB::calculaAABB(Ponto Max, Ponto Min, Ponto Posicao){
     this->MeiaLarg = Ponto(Max.x - Centro.x, Max.y - Centro.y, Max.z - Centro.z);
     Centro.x += Posicao.x;
     Centro.y += Posicao.y;
+    Centro.z += Posicao.z;
 }
 
 bool AABB::calculaColisaoAABB(AABB E1, AABB E2){
