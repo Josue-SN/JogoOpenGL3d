@@ -123,6 +123,7 @@ void CalculaPonto(Ponto p, Ponto &out) {
 // **********************************************************************
 void InicializaCidade(int QtdX, int QtdZ)
 {
+    
     for (int i=0;i<QtdZ;i++)
         for (int j=0;j<QtdX;j++)
             Cidade[i][j].tipo = VAZIO;
@@ -130,14 +131,32 @@ void InicializaCidade(int QtdX, int QtdZ)
         for (int j=1;j<QtdX;j++)
             Cidade[i][j].tipo = PREDIO;
     for (int i = 0; i < QtdX; i++){
+        //Canto infeior
         Cidade[i][0].tipo = RUA;
+        Cidade[i][1].tipo = RUA;
+        Cidade[i][2].tipo = RUA;
+        //Canto superior
         Cidade[i][QtdZ-1].tipo = RUA;
-        Cidade[i][QtdZ/2].tipo = RUA;
+        Cidade[i][QtdZ-2].tipo = RUA;
+        Cidade[i][QtdZ-3].tipo = RUA;
+        //Centro (horizontal)
+        Cidade[i][QtdZ/2 - 1].tipo = RUA;
+        Cidade[i][QtdZ/2    ].tipo = RUA;
+        Cidade[i][QtdZ/2 + 1].tipo = RUA;
     }
     for (int i = 0; i < QtdZ; i++){
+        //Canto esquerdo
         Cidade[0][i].tipo = RUA;
+        Cidade[1][i].tipo = RUA;
+        Cidade[2][i].tipo = RUA;
+        //Canto direito
         Cidade[QtdX-1][i].tipo = RUA;
-        Cidade[QtdX/2][i].tipo = RUA;
+        Cidade[QtdX-2][i].tipo = RUA;
+        Cidade[QtdX-3][i].tipo = RUA;
+        //Centro (vertical)
+        Cidade[QtdX/2 - 1][i].tipo = RUA;
+        Cidade[QtdX/2    ][i].tipo = RUA;
+        Cidade[QtdX/2 + 1][i].tipo = RUA;
     }
 }
 
@@ -147,7 +166,14 @@ void DefineBoundingBoxesQuadras(){
     Quadras[1] = AABB();
     Quadras[2] = AABB();
     Quadras[3] = AABB();
-    Quadras[0].calculaAABB(Ponto(3,0,3), Ponto(0,0,0), Ponto(1.5,0,1.5));
+    //Bounding box da quadra inferior direita (começa em 3.5, 0, 3.5)
+    Quadras[0].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(3.5,0,3.5));
+    //Inferior esquerda
+    Quadras[1].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(12.5,0,3.5));
+    //Superior direita
+    Quadras[2].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(3.5,0,12.5));
+    //Superior esquerda
+    Quadras[3].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(12.5,0,12.5));
 }
 
 
@@ -181,10 +207,10 @@ void init(void)
     
     srand((unsigned int)time(NULL));
     
-    QtdX = 11;
-    QtdZ = 11;
+    QtdX = 21;
+    QtdZ = 21;
 
-    Carro.Posicao = Ponto(5, 0, 0);
+    Carro.Posicao = Ponto(10, 0, 0);
     
     InicializaCidade(QtdX, QtdZ);
     
@@ -432,7 +458,7 @@ void DefineLuz(void)
 //
 //
 // **********************************************************************
-Ponto PosObservador = Ponto(4.5, 6, -1);
+Ponto PosObservador = Ponto(10.5, 18, -5);
 void PosicUser()
 {
 
@@ -451,7 +477,7 @@ void PosicUser()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(PosObservador.x, PosObservador.y, PosObservador.z,   // Posi��o do Observador
-              4.5,0,5,     // Posi��o do Alvo
+              10.5,0,10.5,     // Posi��o do Alvo
               0.0f,1.0f,0.0f); // UP
 
 
@@ -613,33 +639,34 @@ void arrow_keys ( int a_keys, int x, int y )
 		case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(0, 0, 1));
             Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
-                cout << "Dentro da caixa de colisão\n";
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+                // cout << "Dentro da caixa de colisão\n";
+                Carro.avancaPosicao(Ponto(0, 0, -1));
             }
 			break;
 	    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(0, 0, -1));
             Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
-                cout << "Dentro da caixa de colisão\n";
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+                // cout << "Dentro da caixa de colisão\n";
+                Carro.avancaPosicao(Ponto(0, 0, 1));
             }
-                // Carro.avancaPosicao(Ponto(0, 0, 1));
 			break;
         case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(1, 0, 0));
             Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
-                cout << "Dentro da caixa de colisão\n";
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+                // cout << "Dentro da caixa de colisão\n";
+                Carro.avancaPosicao(Ponto(-1, 0, 0));
             }
-                // Carro.avancaPosicao(Ponto(-1, 0, 0));
 			break;
 	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
             Carro.avancaPosicao(Ponto(-1, 0, 0));
             Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras[0])){
-                cout << "Dentro da caixa de colisão\n";
+            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+                // cout << "Dentro da caixa de colisão\n";
+                Carro.avancaPosicao(Ponto(1, 0, 0));
             }
-                // Carro.avancaPosicao(Ponto(1, 0, 0));
             break;
 		default:
 			break;

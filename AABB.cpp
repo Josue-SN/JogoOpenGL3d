@@ -1,4 +1,3 @@
-
 #include "AABB.h"
 
 void AABB::calculaAABB(Ponto Max, Ponto Min, Ponto Posicao){
