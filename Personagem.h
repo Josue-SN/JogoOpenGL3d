@@ -13,10 +13,11 @@ using namespace std;
 class Personagem {
     
 public:
-AABB BoudingBox;
+AABB BoundingBox;
 Ponto Posicao;
 // em graus, virando para a esquerda
 int direcao;
+int combustivel;
 bool emMovimento = false;
 void avancaPosicao(Ponto quantidadeAvanco);
 } ;

@@ -13,11 +13,12 @@ Mapa lido de arquivo, tabela, ou mapeditor.org
 
 Veículo: [Alta prioridade]
 Existir OK
-Andar sempre para frente, com opção de alterar a direção. [Alta prioridade]
+Andar sempre para frente, com opção de alterar a direção. [Alta prioridade] OK
 Movimento com MRU de 1/10 do tamanho do mapa por segundo  [Baixa prioridade]
 Mover a camera enquanto o veiculo se move                 [Alta prioridade]
-Veículo não pode sair do mapa                             [Baixa prioridade]
+Veículo não pode sair do mapa                             [Baixa prioridade]OK
 Consome combustível                                       [Alta prioridade]
+    Deve poder coletar combustível
 
 Inimigos:
 Voam com trajetos baseados em curvas paramétricas, altura fixa  [Alta prioridade]

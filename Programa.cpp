@@ -36,13 +36,15 @@ Temporizador T;
 double AccumDeltaT=0;
 
 #include <vector>
-#include "Ponto.h"
+#include "Ponto.cpp"
 #include "Personagem.cpp"
 #include "AABB.cpp"
-#include "ListaDeCoresRGB.h"
+#include "Objeto.cpp"
+#include "ListaDeCoresRGB.cpp"
+#include "Temporizador.cpp"
 
 GLfloat AspectRatio, angulo=0;
-GLfloat AlturaViewportDeMensagens = 0.2; // percentual em relacao � altura da tela
+GLfloat AlturaViewportDeMensagens = 0.1; // percentual em relacao � altura da tela
 
 
 // Controle do modo de projecao
@@ -68,7 +70,8 @@ int QtdX;
 int QtdZ;
 
 AABB Quadras[4];
-vector<Personagem> Combustiveis;
+vector<Objeto> Predios;
+vector<Objeto> Combustiveis;
 int indiceCombustiveis = 0;
 
 // Pai ta de celta
@@ -169,41 +172,48 @@ void InicializaCidade(int QtdX, int QtdZ)
     Cidade[19][19].tipo = COMBUSTIVEL;
     Cidade[10][10].tipo = COMBUSTIVEL;
 
-    Personagem Combustivel = Personagem();
-    Combustivel.Posicao = Ponto(1, 0, 1);
-    Combustiveis.push_back(Combustivel);
-
-    Combustivel = Personagem();
-    Combustivel.Posicao = Ponto(19, 0, 1);
-    Combustiveis.push_back(Combustivel);
-
-    Combustivel = Personagem();
-    Combustivel.Posicao = Ponto(1, 0, 19);
-    Combustiveis.push_back(Combustivel);
-
-    Combustivel = Personagem();
-    Combustivel.Posicao = Ponto(19, 0, 19);
-    Combustiveis.push_back(Combustivel);
-
-    Combustivel = Personagem();
-    Combustivel.Posicao = Ponto(10, 0, 10);
-    Combustiveis.push_back(Combustivel);
 }
 
-// HARDCODED
-void DefineBoundingBoxesQuadras(){
-    Quadras[0] = AABB();
-    Quadras[1] = AABB();
-    Quadras[2] = AABB();
-    Quadras[3] = AABB();
-    //Bounding box da quadra inferior direita (começa em 3.5, 0, 3.5)
-    Quadras[0].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(3.5,0,3.5));
-    //Inferior esquerda
-    Quadras[1].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(12.5,0,3.5));
-    //Superior direita
-    Quadras[2].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(3.5,0,12.5));
-    //Superior esquerda
-    Quadras[3].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(12.5,0,12.5));
+void DefineBoundingBoxesCenario(){
+    for (int i = 0; i < QtdX; i++)
+    {
+        for (int j = 0; j < QtdZ; j++)
+        {
+            if(Cidade[i][j].tipo == PREDIO){
+                Objeto Predio = Objeto();
+                Predio.Posicao = Ponto(i, 0 ,j);
+                Predio.destruido = false;
+
+                AABB BoundingBox = AABB();
+                BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Predio.Posicao);
+                Predio.BoundingBox = BoundingBox;
+
+                Predios.push_back(Predio);
+            }else if(Cidade[i][j].tipo == COMBUSTIVEL){
+                Objeto Combustivel = Objeto();
+                Combustivel.Posicao = Ponto(i, 0 ,j);
+                Combustivel.destruido = false;
+
+                AABB BoundingBox = AABB();
+                BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Combustivel.Posicao);
+                Combustivel.BoundingBox = BoundingBox;
+                Combustiveis.push_back(Combustivel);
+            }
+        }
+    }
+    
+    // Quadras[0] = AABB();
+    // Quadras[1] = AABB();
+    // Quadras[2] = AABB();
+    // Quadras[3] = AABB();
+    // //Bounding box da quadra inferior direita (começa em 3.5, 0, 3.5)
+    // Quadras[0].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(3.5,0,3.5));
+    // //Inferior esquerda
+    // Quadras[1].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(12.5,0,3.5));
+    // //Superior direita
+    // Quadras[2].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(3.5,0,12.5));
+    // //Superior esquerda
+    // Quadras[3].calculaAABB(Ponto(5,0,5), Ponto(0,0,0), Ponto(12.5,0,12.5));
 }
 
 
@@ -241,8 +251,10 @@ void init(void)
     QtdZ = 21;
 
     Carro.Posicao = Ponto(10, 0, 0);
+    Carro.combustivel = 100;
     
     InicializaCidade(QtdX, QtdZ);
+    DefineBoundingBoxesCenario();
     
 }
 
@@ -270,12 +282,12 @@ void animate()
     }
 }
 
-void AvancaCarro(){
+void VerificaColisoesCarro(){
     if(Carro.emMovimento){
         glPushMatrix();
         glRotatef(Carro.direcao, 0, 1, 0);
         Ponto FrenteCarro = Carro.Posicao;
-        FrenteCarro = FrenteCarro + Ponto(0,0,1);
+        FrenteCarro = FrenteCarro + Ponto(0,0,0.33);
 
         Ponto CentroCarro;
         Ponto NovaPosicao;
@@ -284,12 +296,37 @@ void AvancaCarro(){
 
         Ponto QuantidadeAvanco = CentroCarro - NovaPosicao;
         Carro.avancaPosicao(Ponto(QuantidadeAvanco.x, 0, QuantidadeAvanco.z));
-        Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-        if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+        Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+        //caso haja colisao, revertemos o movimento
+        if(Objeto::calculaColisaoObjetos(Carro.BoundingBox, Predios.data(), Predios.size()) != -1)
             Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
+        //caso saia do mapa, tambem revertmos
+        if(Carro.Posicao.x > 20 || Carro.Posicao.x < 0)
+            Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
+        if(Carro.Posicao.z > 20 || Carro.Posicao.z < 0)
+            Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
+        int indiceColisao = Objeto::calculaColisaoObjetos(Carro.BoundingBox, Combustiveis.data(), Combustiveis.size());
+        if(indiceColisao != -1){
+            Objeto Combustivel = Combustiveis[indiceColisao];
+            if(!Combustivel.destruido){
+                //Destroi na lista de combustiveis
+                Combustivel.destruido = true;
+
+                //Apaga na cidade
+                int i = Combustivel.Posicao.x;
+                int j = Combustivel.Posicao.z;
+                Cidade[i][j].tipo = RUA;
+
+                //Adiciona combustivel ao carro
+                Carro.combustivel = 100;
+            }
         }
         glPopMatrix();
     }
+}
+
+void VerificaFimDoJogo(){
+    
 }
 
 // **********************************************************************
@@ -466,9 +503,9 @@ void DesenhaCidade(int QtdX, int QtdZ)
                 DesenhaLadrilho(Gray, Black);
                 defineCor(Brown);
                 DesenhaPredio(1.2);
+
             }else if(Cidade[i][j].tipo == COMBUSTIVEL){
                 DesenhaLadrilho(Red, Black);
-                
                 defineCor(Light_Purple);
                 DesenhaPredio(0.2);
             }
@@ -527,7 +564,7 @@ void DefineLuz(void)
 //
 //
 // **********************************************************************
-Ponto PosObservador = Ponto(10.5, 5, -5);
+Ponto PosObservador = Ponto(10.5, 18, -5);
 void PosicUser()
 {
 
@@ -628,9 +665,7 @@ void DesenhaEm2D()
         glVertex2f(10,10);
     glEnd();
     
-    printString("Amarelo", 0, 0, Yellow);
-    printString("Vermelho", 4, 2, Red);
-    printString("Verde", 8, 4, Green);
+    printString(to_string(Carro.combustivel), 5, 5, Yellow);
 
     // Resataura os par�metro que foram alterados
     glMatrixMode(GL_PROJECTION);
@@ -663,10 +698,9 @@ void display( void )
     // TracaBezier3Pontos();
     
     DesenhaCidade(QtdX,QtdZ);
-    DefineBoundingBoxesQuadras();
     DesenhaPersonagem();
-    AvancaCarro();
-    // DesenhaEm2D();
+    VerificaColisoesCarro();
+    DesenhaEm2D();
 
 	glutSwapBuffers();
 }
@@ -710,8 +744,8 @@ void arrow_keys ( int a_keys, int x, int y )
 	{
 		case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
             // Carro.avancaPosicao(Ponto(0, 0, 1));
-            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            // Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoundingBox.calculaColisaoAABB(Carro.BoundingBox, Quadras, 4)){
             //     // cout << "Dentro da caixa de colisão\n";
             //     Carro.avancaPosicao(Ponto(0, 0, -1));
             // }
@@ -719,8 +753,8 @@ void arrow_keys ( int a_keys, int x, int y )
 			break;
 	    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
             // Carro.avancaPosicao(Ponto(0, 0, -1));
-            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            // Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoundingBox.calculaColisaoAABB(Carro.BoundingBox, Quadras, 4)){
             //     // cout << "Dentro da caixa de colisão\n";
             //     Carro.avancaPosicao(Ponto(0, 0, 1));
             // }
@@ -728,28 +762,28 @@ void arrow_keys ( int a_keys, int x, int y )
 			break;
         case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
             // Carro.avancaPosicao(Ponto(1, 0, 0));
-            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            // Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoundingBox.calculaColisaoAABB(Carro.BoundingBox, Quadras, 4)){
             //     // cout << "Dentro da caixa de colisão\n";
             //     Carro.avancaPosicao(Ponto(-1, 0, 0));
             // }
             if(Carro.direcao < 360){
-                Carro.direcao += 5;
+                Carro.direcao += 30;
             }else{
-                Carro.direcao = 5;
+                Carro.direcao = 30;
             }
 			break;
 	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
             // Carro.avancaPosicao(Ponto(-1, 0, 0));
-            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            // Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoundingBox.calculaColisaoAABB(Carro.BoundingBox, Quadras, 4)){
             //     // cout << "Dentro da caixa de colisão\n";
             //     Carro.avancaPosicao(Ponto(1, 0, 0));
             // }
             if(Carro.direcao > 0){
-                Carro.direcao -= 5;
+                Carro.direcao -= 30;
             }else{
-                Carro.direcao = 355;
+                Carro.direcao = 330;
             }
             break;
 		default:

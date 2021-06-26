@@ -16,8 +16,7 @@ Ponto Centro;
 Ponto MeiaLarg;
 void calculaAABB(Ponto Max, Ponto Min, Ponto Posicao);
 bool calculaColisaoAABB(AABB BB1, AABB BB2);
-bool calculaColisaoAABB(AABB BB1, AABB BB2[], int size);
-bool calculaColisaoAABB(AABB BB1, vector<AABB> BB2);
+bool calculaColisaoAABB(AABB BB1, AABB* BB2, int size);
 } ;
 
 
