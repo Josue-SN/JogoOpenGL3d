@@ -15,11 +15,13 @@ class Personagem {
 public:
 AABB BoundingBox;
 Ponto Posicao;
+Ponto Dir;
 // em graus, virando para a esquerda
 int direcao;
 int combustivel;
 bool emMovimento = false;
 void avancaPosicao(Ponto quantidadeAvanco);
+void calculaDir();
 } ;
 
 

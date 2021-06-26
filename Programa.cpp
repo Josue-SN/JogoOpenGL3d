@@ -60,6 +60,9 @@ int ModoDeProjecao = 1;
 // pela tecla 'w'
 int ModoDeExibicao = 1;
 
+//define a posicao do observador
+bool TerceiraPessoa = true;
+
 double nFrames=0;
 double TempoTotal=0;
 
@@ -285,29 +288,34 @@ void animate()
 void VerificaColisoesCarro(){
     if(Carro.emMovimento){
         glPushMatrix();
-        glRotatef(Carro.direcao, 0, 1, 0);
-        Ponto FrenteCarro = Carro.Posicao;
-        FrenteCarro = FrenteCarro + Ponto(0,0,0.33);
+        // glRotatef(Carro.direcao, 0, 1, 0);
 
-        Ponto CentroCarro;
-        Ponto NovaPosicao;
-        CalculaPonto(Carro.Posicao, CentroCarro);
-        CalculaPonto(FrenteCarro, NovaPosicao);
+        // Ponto FrenteCarro = Carro.Posicao;
+        // FrenteCarro = FrenteCarro + Ponto(0,0,0.33);
 
-        Ponto QuantidadeAvanco = CentroCarro - NovaPosicao;
-        Carro.avancaPosicao(Ponto(QuantidadeAvanco.x, 0, QuantidadeAvanco.z));
+        // Ponto CentroCarro;
+        // Ponto NovaPosicao;
+        // CalculaPonto(Carro.Posicao, CentroCarro);
+        // CalculaPonto(FrenteCarro, NovaPosicao);
+
+        // Ponto QuantidadeAvanco = CentroCarro - NovaPosicao;
+        Ponto Avanco = Ponto(0,0,1);
+        Avanco.rotacionaY(Carro.direcao);
+        Carro.avancaPosicao(Ponto(Avanco.x, 0, Avanco.z));
+        // Carro.avancaPosicao(Ponto(QuantidadeAvanco.x, 0, QuantidadeAvanco.z));
         Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
         //caso haja colisao, revertemos o movimento
         if(Objeto::calculaColisaoObjetos(Carro.BoundingBox, Predios.data(), Predios.size()) != -1)
-            Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
+            Carro.avancaPosicao(Ponto(-Avanco.x, 0, -Avanco.z));
+            // Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
         //caso saia do mapa, tambem revertmos
         if(Carro.Posicao.x > 20 || Carro.Posicao.x < 0)
-            Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
+            Carro.avancaPosicao(Ponto(-Avanco.x, 0, -Avanco.z));
         if(Carro.Posicao.z > 20 || Carro.Posicao.z < 0)
-            Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
+            Carro.avancaPosicao(Ponto(-Avanco.x, 0, -Avanco.z));
         int indiceColisao = Objeto::calculaColisaoObjetos(Carro.BoundingBox, Combustiveis.data(), Combustiveis.size());
         if(indiceColisao != -1){
-            Objeto Combustivel = Combustiveis[indiceColisao];
+            Objeto &Combustivel = Combustiveis[indiceColisao];
             if(!Combustivel.destruido){
                 //Destroi na lista de combustiveis
                 Combustivel.destruido = true;
@@ -325,9 +333,6 @@ void VerificaColisoesCarro(){
     }
 }
 
-void VerificaFimDoJogo(){
-    
-}
 
 // **********************************************************************
 Ponto CalculaBezier3(Ponto PC[], double t)
@@ -567,7 +572,6 @@ void DefineLuz(void)
 Ponto PosObservador = Ponto(10.5, 18, -5);
 void PosicUser()
 {
-
     // Define os par�metros da proje��o Perspectiva
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -582,13 +586,19 @@ void PosicUser()
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
+    
     // PosObservador = Ponto(-5, 5, 2);
-    gluLookAt(PosObservador.x, PosObservador.y, PosObservador.z,   // Posi��o do Observador
-              10.5,0,10.5,     // Posi��o do Alvo
-              0.0f,1.0f,0.0f); // UP
-
-
+    if(TerceiraPessoa){
+        gluLookAt(PosObservador.x, PosObservador.y, PosObservador.z,   // Posi��o do Observador
+            10.5,0,10.5,     // Posi��o do Alvo
+            0.0f,1.0f,0.0f); // UP
+    }else{
+        Ponto Alvo = Ponto(0,0,1);
+        Alvo.rotacionaY(Carro.direcao);
+        gluLookAt(Carro.Posicao.x - 0.5, 1, Carro.Posicao.z - 0.5,   // Posi��o do Observador
+            Carro.Posicao.x + Alvo.x - 0.5, 1, Carro.Posicao.z + Alvo.z - 0.5,     // Posi��o do Alvo
+            0.0f,1.0f,0.0f); // UP
+    }
 }
 // **********************************************************************
 //  void reshape( int w, int h )
@@ -597,7 +607,6 @@ void PosicUser()
 // **********************************************************************
 void reshape( int w, int h )
 {
-
 	// Evita divis�o por zero, no caso de uam janela com largura 0.
 	if(h == 0) h = 1;
     // Ajusta a rela��o entre largura e altura para evitar distor��o na imagem.
@@ -665,7 +674,11 @@ void DesenhaEm2D()
         glVertex2f(10,10);
     glEnd();
     
-    printString(to_string(Carro.combustivel), 5, 5, Yellow);
+    if(AlturaViewportDeMensagens == 1){
+        printString("Voce ganhou", 5, 5.5, Yellow);
+    }else{
+        printString(to_string(Carro.combustivel), 5, 5, Yellow);
+    }
 
     // Resataura os par�metro que foram alterados
     glMatrixMode(GL_PROJECTION);
@@ -677,6 +690,17 @@ void DesenhaEm2D()
 
 }
 
+void VerificaFimDoJogo(){
+    bool restamCombustiveis = false;
+    for (int i = 0; i < Combustiveis.size(); i++)
+    {
+        if(!Combustiveis[i].destruido)
+            restamCombustiveis = true;
+    }
+    if(!restamCombustiveis){
+        AlturaViewportDeMensagens = 1;
+    }
+}
 // **********************************************************************
 //  void display( void )
 //
@@ -684,7 +708,6 @@ void DesenhaEm2D()
 // **********************************************************************
 void display( void )
 {
-
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	DefineLuz();
@@ -701,6 +724,8 @@ void display( void )
     DesenhaPersonagem();
     VerificaColisoesCarro();
     DesenhaEm2D();
+
+    VerificaFimDoJogo();
 
 	glutSwapBuffers();
 }
@@ -727,6 +752,11 @@ void keyboard ( unsigned char key, int x, int y )
             init();
             glutPostRedisplay();
             break;
+    case 'c':
+            TerceiraPessoa = !TerceiraPessoa;
+            glutPostRedisplay();
+            break;
+
     default:
             cout << key;
     break;
@@ -768,9 +798,9 @@ void arrow_keys ( int a_keys, int x, int y )
             //     Carro.avancaPosicao(Ponto(-1, 0, 0));
             // }
             if(Carro.direcao < 360){
-                Carro.direcao += 30;
+                Carro.direcao += 15;
             }else{
-                Carro.direcao = 30;
+                Carro.direcao = 15;
             }
 			break;
 	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
@@ -781,9 +811,9 @@ void arrow_keys ( int a_keys, int x, int y )
             //     Carro.avancaPosicao(Ponto(1, 0, 0));
             // }
             if(Carro.direcao > 0){
-                Carro.direcao -= 30;
+                Carro.direcao -= 15;
             }else{
-                Carro.direcao = 330;
+                Carro.direcao = 345;
             }
             break;
 		default:

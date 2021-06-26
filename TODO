@@ -17,8 +17,8 @@ Andar sempre para frente, com opção de alterar a direção. [Alta prioridade] 
 Movimento com MRU de 1/10 do tamanho do mapa por segundo  [Baixa prioridade]
 Mover a camera enquanto o veiculo se move                 [Alta prioridade]
 Veículo não pode sair do mapa                             [Baixa prioridade]OK
-Consome combustível                                       [Alta prioridade]
-    Deve poder coletar combustível
+Consome combustível                                       [Alta prioridade] OK
+    Deve poder coletar combustível                                          OK
 
 Inimigos:
 Voam com trajetos baseados em curvas paramétricas, altura fixa  [Alta prioridade]
