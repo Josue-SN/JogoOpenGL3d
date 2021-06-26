@@ -38,3 +38,21 @@ bool AABB::calculaColisaoAABB(AABB E1, AABB ArrayAABB[], int size){
     }
     return false;
 }
+
+bool AABB::calculaColisaoAABB(AABB E1, vector<AABB> ArrayAABB){
+    for (int i = 0; i < ArrayAABB.size(); i++)
+    {
+        AABB E2 = ArrayAABB[i];
+        if(abs(E1.Centro.x - E2.Centro.x) > (E1.MeiaLarg.x + E2.MeiaLarg.x)) {
+            continue; // nao ha colisao
+        }
+        if(abs(E1.Centro.y - E2.Centro.y) > (E1.MeiaLarg.y + E2.MeiaLarg.y)) {
+            continue; // nao ha colisao
+        }
+        if(abs(E1.Centro.z - E2.Centro.z) > (E1.MeiaLarg.z + E2.MeiaLarg.z)) {
+            continue; // nao ha colisao
+        }
+        return true; // ha colisao
+    }
+    return false;
+}

@@ -35,6 +35,7 @@ using namespace std;
 Temporizador T;
 double AccumDeltaT=0;
 
+#include <vector>
 #include "Ponto.h"
 #include "Personagem.cpp"
 #include "AABB.cpp"
@@ -67,6 +68,8 @@ int QtdX;
 int QtdZ;
 
 AABB Quadras[4];
+vector<Personagem> Combustiveis;
+int indiceCombustiveis = 0;
 
 // Pai ta de celta
 Personagem Carro;
@@ -123,15 +126,17 @@ void CalculaPonto(Ponto p, Ponto &out) {
 // **********************************************************************
 void InicializaCidade(int QtdX, int QtdZ)
 {
-    
+    //Tudo vazio
     for (int i=0;i<QtdZ;i++)
         for (int j=0;j<QtdX;j++)
             Cidade[i][j].tipo = VAZIO;
+    //Tudo predios
     for (int i=1;i<QtdZ;i++)
         for (int j=1;j<QtdX;j++)
             Cidade[i][j].tipo = PREDIO;
+    //Ruas
     for (int i = 0; i < QtdX; i++){
-        //Canto infeior
+        //Canto inferior
         Cidade[i][0].tipo = RUA;
         Cidade[i][1].tipo = RUA;
         Cidade[i][2].tipo = RUA;
@@ -158,6 +163,31 @@ void InicializaCidade(int QtdX, int QtdZ)
         Cidade[QtdX/2    ][i].tipo = RUA;
         Cidade[QtdX/2 + 1][i].tipo = RUA;
     }
+    Cidade[1][1].tipo = COMBUSTIVEL;
+    Cidade[19][1].tipo = COMBUSTIVEL;
+    Cidade[1][19].tipo = COMBUSTIVEL;
+    Cidade[19][19].tipo = COMBUSTIVEL;
+    Cidade[10][10].tipo = COMBUSTIVEL;
+
+    Personagem Combustivel = Personagem();
+    Combustivel.Posicao = Ponto(1, 0, 1);
+    Combustiveis.push_back(Combustivel);
+
+    Combustivel = Personagem();
+    Combustivel.Posicao = Ponto(19, 0, 1);
+    Combustiveis.push_back(Combustivel);
+
+    Combustivel = Personagem();
+    Combustivel.Posicao = Ponto(1, 0, 19);
+    Combustiveis.push_back(Combustivel);
+
+    Combustivel = Personagem();
+    Combustivel.Posicao = Ponto(19, 0, 19);
+    Combustiveis.push_back(Combustivel);
+
+    Combustivel = Personagem();
+    Combustivel.Posicao = Ponto(10, 0, 10);
+    Combustiveis.push_back(Combustivel);
 }
 
 // HARDCODED
@@ -240,6 +270,28 @@ void animate()
     }
 }
 
+void AvancaCarro(){
+    if(Carro.emMovimento){
+        glPushMatrix();
+        glRotatef(Carro.direcao, 0, 1, 0);
+        Ponto FrenteCarro = Carro.Posicao;
+        FrenteCarro = FrenteCarro + Ponto(0,0,1);
+
+        Ponto CentroCarro;
+        Ponto NovaPosicao;
+        CalculaPonto(Carro.Posicao, CentroCarro);
+        CalculaPonto(FrenteCarro, NovaPosicao);
+
+        Ponto QuantidadeAvanco = CentroCarro - NovaPosicao;
+        Carro.avancaPosicao(Ponto(QuantidadeAvanco.x, 0, QuantidadeAvanco.z));
+        Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+        if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
+        }
+        glPopMatrix();
+    }
+}
+
 // **********************************************************************
 Ponto CalculaBezier3(Ponto PC[], double t)
 {
@@ -270,6 +322,9 @@ void TracaBezier3Pontos()
     glVertex3f(P.x, P.y, P.z);
     glEnd();
 }
+
+
+
 // **********************************************************************
 //  void DesenhaCubo()
 //
@@ -337,11 +392,20 @@ void DesenhaPredio(float altura)
 void DesenhaPersonagem()
 {
     glPushMatrix();
-        defineCor(Yellow);
         glTranslatef(Carro.Posicao.x, Carro.Posicao.y, Carro.Posicao.z);
-        glTranslatef(-0.5, 0, -0.5);
-        glScalef(0.2, 0.5, 0.5);
+        glTranslatef(-0.5, 0.3, -0.5);
+        if(false)
+            glRotatef(Carro.direcao, Carro.Posicao.x, Carro.Posicao.y, Carro.Posicao.z);
+
+        glRotatef(Carro.direcao, 0,1,0);
+        defineCor(Yellow);
+        glScalef(0.1, 0.3, 0.5);
         DesenhaCubo();
+        glTranslatef(0, -0.5, 0.5);
+        defineCor(White);
+        glScalef(0.5, 0.5, 1);
+        DesenhaCubo();
+
     glPopMatrix();
     
 }
@@ -402,6 +466,11 @@ void DesenhaCidade(int QtdX, int QtdZ)
                 DesenhaLadrilho(Gray, Black);
                 defineCor(Brown);
                 DesenhaPredio(1.2);
+            }else if(Cidade[i][j].tipo == COMBUSTIVEL){
+                DesenhaLadrilho(Red, Black);
+                
+                defineCor(Light_Purple);
+                DesenhaPredio(0.2);
             }
             glTranslatef(0, 0, 1);
         }
@@ -458,7 +527,7 @@ void DefineLuz(void)
 //
 //
 // **********************************************************************
-Ponto PosObservador = Ponto(10.5, 18, -5);
+Ponto PosObservador = Ponto(10.5, 5, -5);
 void PosicUser()
 {
 
@@ -476,6 +545,8 @@ void PosicUser()
     
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    // PosObservador = Ponto(-5, 5, 2);
     gluLookAt(PosObservador.x, PosObservador.y, PosObservador.z,   // Posi��o do Observador
               10.5,0,10.5,     // Posi��o do Alvo
               0.0f,1.0f,0.0f); // UP
@@ -594,6 +665,7 @@ void display( void )
     DesenhaCidade(QtdX,QtdZ);
     DefineBoundingBoxesQuadras();
     DesenhaPersonagem();
+    AvancaCarro();
     // DesenhaEm2D();
 
 	glutSwapBuffers();
@@ -637,35 +709,47 @@ void arrow_keys ( int a_keys, int x, int y )
 	switch ( a_keys ) 
 	{
 		case GLUT_KEY_UP:       // When Up Arrow Is Pressed...
-            Carro.avancaPosicao(Ponto(0, 0, 1));
-            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
-                // cout << "Dentro da caixa de colisão\n";
-                Carro.avancaPosicao(Ponto(0, 0, -1));
-            }
+            // Carro.avancaPosicao(Ponto(0, 0, 1));
+            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            //     // cout << "Dentro da caixa de colisão\n";
+            //     Carro.avancaPosicao(Ponto(0, 0, -1));
+            // }
+            Carro.emMovimento = true;
 			break;
 	    case GLUT_KEY_DOWN:     // When Down Arrow Is Pressed...
-            Carro.avancaPosicao(Ponto(0, 0, -1));
-            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
-                // cout << "Dentro da caixa de colisão\n";
-                Carro.avancaPosicao(Ponto(0, 0, 1));
-            }
+            // Carro.avancaPosicao(Ponto(0, 0, -1));
+            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            //     // cout << "Dentro da caixa de colisão\n";
+            //     Carro.avancaPosicao(Ponto(0, 0, 1));
+            // }
+            Carro.emMovimento = false;
 			break;
         case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
-            Carro.avancaPosicao(Ponto(1, 0, 0));
-            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
-                // cout << "Dentro da caixa de colisão\n";
-                Carro.avancaPosicao(Ponto(-1, 0, 0));
+            // Carro.avancaPosicao(Ponto(1, 0, 0));
+            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            //     // cout << "Dentro da caixa de colisão\n";
+            //     Carro.avancaPosicao(Ponto(-1, 0, 0));
+            // }
+            if(Carro.direcao < 360){
+                Carro.direcao += 5;
+            }else{
+                Carro.direcao = 5;
             }
 			break;
 	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
-            Carro.avancaPosicao(Ponto(-1, 0, 0));
-            Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
-                // cout << "Dentro da caixa de colisão\n";
-                Carro.avancaPosicao(Ponto(1, 0, 0));
+            // Carro.avancaPosicao(Ponto(-1, 0, 0));
+            // Carro.BoudingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+            // if(Carro.BoudingBox.calculaColisaoAABB(Carro.BoudingBox, Quadras, 4)){
+            //     // cout << "Dentro da caixa de colisão\n";
+            //     Carro.avancaPosicao(Ponto(1, 0, 0));
+            // }
+            if(Carro.direcao > 0){
+                Carro.direcao -= 5;
+            }else{
+                Carro.direcao = 355;
             }
             break;
 		default:

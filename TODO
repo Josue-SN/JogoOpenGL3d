@@ -1,10 +1,31 @@
-Em nenhuma ordem específica:
+Cópia resumida do enunciado:
 
-Caixas de colisão
-Curvas de Bezier dos aviões -> Aviões
-Objetos colecionáveis (gasolina)
-Lógica do jogo -> Interface em 2d
-Leitura do mapa por arquivo (ou outra forma de criar o mapa sem loops)
-Melhorias das mecânicas (MRU para o carro e aviões)
-Destruição dos pŕedios e obstrução das ruas
-Opção de câmera em 1° pessoa
+Trabalho: 
+Cenário com veículo com objetivo de colecionar itens. 
+3 aviões sobrevoando com trajetos baseados em curvas paramétrica lançam bombas, atingindo predíos, ruas ou o veículo. 
+2 tipos de visualizações, 1° pessoa ou visão geral do mapa. [Alta prioridade]
+
+Cidade: [Baixa prioridade]
+Modelada em matriz (funcionando por padrão)
+Ruas devem ter texturas
+Pelo menos 50 prédios, cores variadas
+Mapa lido de arquivo, tabela, ou mapeditor.org
+
+Veículo: [Alta prioridade]
+Existir OK
+Andar sempre para frente, com opção de alterar a direção. [Alta prioridade]
+Movimento com MRU de 1/10 do tamanho do mapa por segundo  [Baixa prioridade]
+Mover a camera enquanto o veiculo se move                 [Alta prioridade]
+Veículo não pode sair do mapa                             [Baixa prioridade]
+Consome combustível                                       [Alta prioridade]
+
+Inimigos:
+Voam com trajetos baseados em curvas paramétricas, altura fixa  [Alta prioridade]
+Disparam bombas que bloqueiam ruas ou destroem prédios          [Alta prioridade]
+    Hitbox única para cada prédio
+Bombas acertam veículo (citado no definição geral, porém não na definição dos inimigos) [Baixa prioridade]
+
+Opcional (2 pontos) [Baixa prioridade]
+Objetos devem vir de arquivos em um formato 3D. Ex arquivo TRi, OBJ, FBX.
+
+

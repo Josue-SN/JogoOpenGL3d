@@ -15,7 +15,9 @@ class Personagem {
 public:
 AABB BoudingBox;
 Ponto Posicao;
-int Direcao;
+// em graus, virando para a esquerda
+int direcao;
+bool emMovimento = false;
 void avancaPosicao(Ponto quantidadeAvanco);
 } ;
 
