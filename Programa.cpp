@@ -72,7 +72,6 @@ Ponto Curva1[3];
 int QtdX;
 int QtdZ;
 
-AABB Quadras[4];
 vector<Objeto> Predios;
 vector<Objeto> Combustiveis;
 int indiceCombustiveis = 0;
@@ -290,9 +289,8 @@ double tempo;
 void VerificaColisoesCarro(){
     tempo = ControladorAnimacao.getDeltaT();
     if(Carro.emMovimento){
-        double deslocamento = tempo * 20/10;
+        double deslocamento = tempo * ((QtdX+QtdZ)/2)/10;
 
-        glPushMatrix();
         Ponto Avanco = Ponto(0,0,deslocamento);
         Avanco.rotacionaY(Carro.direcao);
         Carro.avancaPosicao(Ponto(Avanco.x, 0, Avanco.z));
@@ -323,7 +321,6 @@ void VerificaColisoesCarro(){
                 Carro.combustivel = 100;
             }
         }
-        glPopMatrix();
     }
 }
 
@@ -588,7 +585,7 @@ void PosicUser()
             0.0f,1.0f,0.0f); // UP
     }else{
         Ponto Alvo = Ponto(0,0,1);
-        Alvo.rotacionaY(Carro.direcao);
+        Alvo.rotacionaY(Carro.direcaoCamera);
         gluLookAt(Carro.Posicao.x - 0.5, 1, Carro.Posicao.z - 0.5,   // Posi��o do Observador
             Carro.Posicao.x + Alvo.x - 0.5, 1, Carro.Posicao.z + Alvo.z - 0.5,     // Posi��o do Alvo
             0.0f,1.0f,0.0f); // UP
@@ -750,6 +747,20 @@ void keyboard ( unsigned char key, int x, int y )
             TerceiraPessoa = !TerceiraPessoa;
             glutPostRedisplay();
             break;
+    case 'z':
+            if(Carro.direcaoCamera < 360){
+                Carro.direcaoCamera += 15;
+            }else{
+                Carro.direcaoCamera = 15;
+            }
+            break;
+    case 'x':
+            if(Carro.direcaoCamera > 0){
+                Carro.direcaoCamera -= 15;
+            }else{
+                Carro.direcaoCamera = 345;
+            }
+            break;
 
     default:
             cout << key;
@@ -785,29 +796,27 @@ void arrow_keys ( int a_keys, int x, int y )
             Carro.emMovimento = false;
 			break;
         case GLUT_KEY_LEFT:       // When Up Arrow Is Pressed...
-            // Carro.avancaPosicao(Ponto(1, 0, 0));
-            // Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            // if(Carro.BoundingBox.calculaColisaoAABB(Carro.BoundingBox, Quadras, 4)){
-            //     // cout << "Dentro da caixa de colisão\n";
-            //     Carro.avancaPosicao(Ponto(-1, 0, 0));
-            // }
             if(Carro.direcao < 360){
                 Carro.direcao += 15;
             }else{
                 Carro.direcao = 15;
             }
+            if(Carro.direcaoCamera < 360){
+                Carro.direcaoCamera += 15;
+            }else{
+                Carro.direcaoCamera = 15;
+            }
 			break;
 	    case GLUT_KEY_RIGHT:     // When Down Arrow Is Pressed...
-            // Carro.avancaPosicao(Ponto(-1, 0, 0));
-            // Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
-            // if(Carro.BoundingBox.calculaColisaoAABB(Carro.BoundingBox, Quadras, 4)){
-            //     // cout << "Dentro da caixa de colisão\n";
-            //     Carro.avancaPosicao(Ponto(1, 0, 0));
-            // }
             if(Carro.direcao > 0){
                 Carro.direcao -= 15;
             }else{
                 Carro.direcao = 345;
+            }
+            if(Carro.direcaoCamera > 0){
+                Carro.direcaoCamera -= 15;
+            }else{
+                Carro.direcaoCamera = 345;
             }
             break;
 		default:

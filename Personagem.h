@@ -18,6 +18,7 @@ Ponto Posicao;
 Ponto Dir;
 // em graus, virando para a esquerda
 int direcao;
+int direcaoCamera;
 int combustivel;
 bool emMovimento = false;
 void avancaPosicao(Ponto quantidadeAvanco);
