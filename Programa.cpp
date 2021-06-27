@@ -94,6 +94,7 @@ public:
 #define PREDIO 10
 #define RUA 20
 #define COMBUSTIVEL 30
+#define ESCOMBRO 40
 
 // Matriz que armazena informacoes sobre o que existe na cidade
 Elemento Cidade[100][100];
@@ -338,6 +339,24 @@ void VerificaColisoesCarro(){
     }
 }
 
+Temporizador ControladorBombas;
+double TempoEntreBombas = 0;
+void DisparaBombas(){
+    TempoEntreBombas += ControladorBombas.getDeltaT();
+    double TempoAleatorio = rand() % 5 + 2;
+    if(TempoEntreBombas > TempoAleatorio){
+        TempoEntreBombas = 0;
+        Aviao &A = Avioes[0];
+        Ponto AlvoArredondado = Ponto(round(A.Posicao.x), round(A.Posicao.y), round(A.Posicao.z));
+        int x = AlvoArredondado.x;
+        int z = AlvoArredondado.z;
+        Cidade[x][z].tipo = ESCOMBRO;
+        // Elemento ConteudoDoAlvo = Cidade[x][z];
+        // if(ConteudoDoAlvo.tipo == PREDIO){
+        // }
+    }
+}
+
 
 // **********************************************************************
 Ponto CalculaBezier3(Ponto PC[], double t)
@@ -435,6 +454,7 @@ void DesenhaAvioes(){
         Curva[2] = A.Rota[5];
         Posicao = CalculaBezier3(Curva, A.posicaoNaRota);
     }
+    A.Posicao = Posicao;
     if(A.posicaoNaRota < 1){
         A.posicaoNaRota += 0.01;
     }else{
@@ -542,11 +562,14 @@ void DesenhaCidade(int QtdX, int QtdZ)
                 DesenhaLadrilho(Gray, Black);
                 defineCor(Brown);
                 DesenhaPredio(1.2);
-
             }else if(Cidade[i][j].tipo == COMBUSTIVEL){
                 DesenhaLadrilho(Red, Black);
                 defineCor(Light_Purple);
                 DesenhaPredio(0.2);
+            }else if(Cidade[i][j].tipo == ESCOMBRO){
+                DesenhaLadrilho(Gray, Black);
+                defineCor(DarkPurple);
+                DesenhaPredio(0.5);
             }
             glTranslatef(0, 0, 1);
         }
@@ -757,7 +780,11 @@ void display( void )
     DesenhaAvioes();
     DesenhaCidade(QtdX,QtdZ);
     DesenhaPersonagem();
+
     VerificaColisoesCarro();
+
+    DisparaBombas();
+
     DesenhaEm2D();
 
     VerificaFimDoJogo();
