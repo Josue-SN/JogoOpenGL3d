@@ -73,7 +73,8 @@ int QtdX;
 int QtdZ;
 
 Aviao Avioes[3];
-vector<Objeto> Predios;
+vector<Objeto> Escombros;
+vector<Objeto> ObjetosIntransponiveis;
 vector<Objeto> Combustiveis;
 int indiceCombustiveis = 0;
 
@@ -208,7 +209,7 @@ void DefineBoundingBoxesCenario(){
                 BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Predio.Posicao);
                 Predio.BoundingBox = BoundingBox;
 
-                Predios.push_back(Predio);
+                ObjetosIntransponiveis.push_back(Predio);
             }else if(Cidade[i][j].tipo == COMBUSTIVEL){
                 Objeto Combustivel = Objeto();
                 Combustivel.Posicao = Ponto(i, 0 ,j);
@@ -310,9 +311,9 @@ void VerificaColisoesCarro(){
         Avanco.rotacionaY(Carro.direcao);
         Carro.avancaPosicao(Ponto(Avanco.x, 0, Avanco.z));
         // Carro.avancaPosicao(Ponto(QuantidadeAvanco.x, 0, QuantidadeAvanco.z));
-        Carro.BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Carro.Posicao);
+        Carro.BoundingBox.calculaAABB(Ponto(0.75,1,0.75), Ponto(0.25,0,0.25), Carro.Posicao);
         //caso haja colisao, revertemos o movimento
-        if(Objeto::calculaColisaoObjetos(Carro.BoundingBox, Predios.data(), Predios.size()) != -1)
+        if(Objeto::calculaColisaoObjetos(Carro.BoundingBox, ObjetosIntransponiveis.data(), ObjetosIntransponiveis.size()) != -1)
             Carro.avancaPosicao(Ponto(-Avanco.x, 0, -Avanco.z));
             // Carro.avancaPosicao(Ponto(-QuantidadeAvanco.x, 0, -QuantidadeAvanco.z));
         //caso saia do mapa, tambem revertmos
@@ -351,6 +352,17 @@ void DisparaBombas(){
         int x = AlvoArredondado.x;
         int z = AlvoArredondado.z;
         Cidade[x][z].tipo = ESCOMBRO;
+
+        Objeto Escombro = Objeto();
+        Escombro.Posicao = Ponto(x, 0 ,z);
+        Escombro.destruido = false;
+
+        AABB BoundingBox = AABB();
+        BoundingBox.calculaAABB(Ponto(1,1,1), Ponto(0,0,0), Escombro.Posicao);
+        Escombro.BoundingBox = BoundingBox;
+
+        ObjetosIntransponiveis.push_back(Escombro);
+
         // Elemento ConteudoDoAlvo = Cidade[x][z];
         // if(ConteudoDoAlvo.tipo == PREDIO){
         // }
