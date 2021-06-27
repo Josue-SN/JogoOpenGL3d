@@ -193,6 +193,26 @@ void InicializaAvioes(){
     Avioes[0].Rota[5] = Ponto(10,   5, 2);
     Avioes[0].posicaoNaRota = 0;
     Avioes[0].estaIndo = true;
+
+    Avioes[1] = Aviao();
+    Avioes[1].Rota[0] = Ponto(18,   5,   18);
+    Avioes[1].Rota[1] = Ponto(18,   5,   2);
+    Avioes[1].Rota[2] = Ponto(2,    5,   2);
+    Avioes[1].Rota[3] = Ponto(2,    5,   2);
+    Avioes[1].Rota[4] = Ponto(2,    5,   18);
+    Avioes[1].Rota[5] = Ponto(18,   5,   18);
+    Avioes[1].posicaoNaRota = 0;
+    Avioes[1].estaIndo = false;
+
+    Avioes[2] = Aviao();
+    Avioes[2].Rota[0] = Ponto(21,   5, 0);
+    Avioes[2].Rota[1] = Ponto(21,   5, 21);
+    Avioes[2].Rota[2] = Ponto(0,    5, 21);
+    Avioes[2].Rota[3] = Ponto(0,    5, 21);
+    Avioes[2].Rota[4] = Ponto(0,    5, 0);
+    Avioes[2].Rota[5] = Ponto(21,   5, 0);
+    Avioes[2].posicaoNaRota = 0;
+    Avioes[2].estaIndo = false;
 }
 
 void DefineBoundingBoxesCenario(){
@@ -344,10 +364,11 @@ Temporizador ControladorBombas;
 double TempoEntreBombas = 0;
 void DisparaBombas(){
     TempoEntreBombas += ControladorBombas.getDeltaT();
-    double TempoAleatorio = rand() % 5 + 2;
+    double TempoAleatorio = rand() % 10 + 1;
+    int AviaoEfetuandoDisparo = rand() % 2;
     if(TempoEntreBombas > TempoAleatorio){
         TempoEntreBombas = 0;
-        Aviao &A = Avioes[0];
+        Aviao &A = Avioes[AviaoEfetuandoDisparo];
         Ponto AlvoArredondado = Ponto(round(A.Posicao.x), round(A.Posicao.y), round(A.Posicao.z));
         int x = AlvoArredondado.x;
         int z = AlvoArredondado.z;
@@ -362,10 +383,6 @@ void DisparaBombas(){
         Escombro.BoundingBox = BoundingBox;
 
         ObjetosIntransponiveis.push_back(Escombro);
-
-        // Elemento ConteudoDoAlvo = Cidade[x][z];
-        // if(ConteudoDoAlvo.tipo == PREDIO){
-        // }
     }
 }
 
@@ -451,33 +468,36 @@ void DesenhaCubo()
 }
 
 void DesenhaAvioes(){
-    Aviao &A = Avioes[0];
-    Ponto Curva[3];
-    Ponto Posicao;
-    //Ida
-    if(A.estaIndo){
-        Curva[0] = A.Rota[0];
-        Curva[1] = A.Rota[1];
-        Curva[2] = A.Rota[2];
-        Posicao = CalculaBezier3(Curva, A.posicaoNaRota);
-    }else{ //Volta
-        Curva[0] = A.Rota[3];
-        Curva[1] = A.Rota[4];
-        Curva[2] = A.Rota[5];
-        Posicao = CalculaBezier3(Curva, A.posicaoNaRota);
+    for (int i = 0; i < 3; i++)
+    {
+        Aviao &A = Avioes[i];
+        Ponto Curva[3];
+        Ponto Posicao;
+        //Ida
+        if(A.estaIndo){
+            Curva[0] = A.Rota[0];
+            Curva[1] = A.Rota[1];
+            Curva[2] = A.Rota[2];
+            Posicao = CalculaBezier3(Curva, A.posicaoNaRota);
+        }else{ //Volta
+            Curva[0] = A.Rota[3];
+            Curva[1] = A.Rota[4];
+            Curva[2] = A.Rota[5];
+            Posicao = CalculaBezier3(Curva, A.posicaoNaRota);
+        }
+        A.Posicao = Posicao;
+        if(A.posicaoNaRota < 1){
+            A.posicaoNaRota += 0.01;
+        }else{
+            A.estaIndo = !A.estaIndo;
+            A.posicaoNaRota = 0.01;
+        }
+        glPushMatrix();
+        glTranslatef(Posicao.x - 0.5, Posicao.y, Posicao.z - 0.5);
+        glScalef(0.2, 0.1, 1);
+        DesenhaCubo();
+        glPopMatrix();
     }
-    A.Posicao = Posicao;
-    if(A.posicaoNaRota < 1){
-        A.posicaoNaRota += 0.01;
-    }else{
-        A.estaIndo = !A.estaIndo;
-        A.posicaoNaRota = 0.01;
-    }
-    glPushMatrix();
-    glTranslatef(Posicao.x - 0.5, Posicao.y, Posicao.z - 0.5);
-    glScalef(0.2, 0.1, 1);
-    DesenhaCubo();
-    glPopMatrix();
 }
 
 // **********************************************************************

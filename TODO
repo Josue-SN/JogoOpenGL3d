@@ -2,8 +2,8 @@ Cópia resumida do enunciado:
 
 Trabalho: 
 Cenário com veículo com objetivo de colecionar itens.                       OK
-3 aviões sobrevoando com trajetos baseados em curvas paramétrica lançam bombas, atingindo predíos, ruas ou o veículo. 
-2 tipos de visualizações, 1° pessoa ou visão geral do mapa. [Alta prioridade]
+3 aviões sobrevoando com trajetos baseados em curvas paramétrica lançam bombOK, atingindo predíos, ruas ou o veículo. 
+2 tipos de visualizações, 1° pessoa ou visão geral do mapa. [Alta prioridadeOK
 
 Cidade: [Baixa prioridade]
 Modelada em matriz (funcionando por padrão)
@@ -24,9 +24,9 @@ Consome combustível                                       [Alta prioridade] OK
 
 Inimigos:
 Voam com trajetos baseados em curvas paramétricas, altura fixa  [Alta prioriOKde] 
-Disparam bombas que bloqueiam ruas ou destroem prédios          [Alta prioridade]
+Disparam bombas que bloqueiam ruas ou destroem prédios          [Alta prioriOKde]
     Hitbox única para cada prédio                                           OK
-Bombas acertam veículo (citado no definição geral, porém não na definição dos inimigos) [Baixa prioridade]
+Bombas acertam veículo (citado no definição geral, porém não na definição doOKinimigos) [Baixa prioridade]
 
 Opcional (2 pontos) [Baixa prioridade]
 Objetos devem vir de arquivos em um formato 3D. Ex arquivo TRi, OBJ, FBX.
