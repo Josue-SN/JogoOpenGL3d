@@ -36,11 +36,13 @@ Temporizador T;
 double AccumDeltaT=0;
 
 #include <vector>
-#include "Ponto.cpp"
-#include "Personagem.cpp"
+
 #include "AABB.cpp"
-#include "Objeto.cpp"
+#include "Aviao.cpp"
 #include "ListaDeCoresRGB.cpp"
+#include "Objeto.cpp"
+#include "Personagem.cpp"
+#include "Ponto.cpp"
 #include "Temporizador.cpp"
 
 GLfloat AspectRatio, angulo=0;
@@ -66,12 +68,11 @@ bool TerceiraPessoa = true;
 double nFrames=0;
 double TempoTotal=0;
 
-Ponto Curva1[3];
-
 // Qtd de ladrilhos do piso. Inicialzada na INIT
 int QtdX;
 int QtdZ;
 
+Aviao Avioes[3];
 vector<Objeto> Predios;
 vector<Objeto> Combustiveis;
 int indiceCombustiveis = 0;
@@ -176,6 +177,22 @@ void InicializaCidade(int QtdX, int QtdZ)
 
 }
 
+void InicializaAvioes(){
+    // for (int i = 0; i < 3; i++)
+    // {
+
+    // }
+    Avioes[0] = Aviao();
+    Avioes[0].Rota[0] = Ponto(10,   5, 2);
+    Avioes[0].Rota[1] = Ponto(18,   5, 10);
+    Avioes[0].Rota[2] = Ponto(10,   5, 18);
+    Avioes[0].Rota[3] = Ponto(10,   5, 18);
+    Avioes[0].Rota[4] = Ponto(2,    5, 10);
+    Avioes[0].Rota[5] = Ponto(10,   5, 2);
+    Avioes[0].posicaoNaRota = 0;
+    Avioes[0].estaIndo = true;
+}
+
 void DefineBoundingBoxesCenario(){
     for (int i = 0; i < QtdX; i++)
     {
@@ -243,10 +260,6 @@ void init(void)
     }
     glEnable(GL_NORMALIZE);
     
-    Curva1[0] = Ponto (-6,0,1);
-    Curva1[1] = Ponto (0,10,1);
-    Curva1[2] = Ponto (6,0,1);
-    
     srand((unsigned int)time(NULL));
     
     QtdX = 21;
@@ -256,6 +269,7 @@ void init(void)
     Carro.combustivel = 100;
     
     InicializaCidade(QtdX, QtdZ);
+    InicializaAvioes();
     DefineBoundingBoxesCenario();
     
 }
@@ -346,12 +360,12 @@ void TracaBezier3Pontos()
     
     while(t<1.0)
     {
-        P = CalculaBezier3(Curva1, t);
+        // P = CalculaBezier3(Curva1, t);
         glVertex3f(P.x, P.y, P.z);
         t += DeltaT;
        // P.imprime(); cout << endl;
     }
-    P = CalculaBezier3(Curva1, 1.0); // faz o fechamento da curva
+    // P = CalculaBezier3(Curva1, 1.0); // faz o fechamento da curva
     glVertex3f(P.x, P.y, P.z);
     glEnd();
 }
@@ -403,6 +417,35 @@ void DesenhaCubo()
     glVertex3f(-1.0f,  1.0f,  1.0f);
     glVertex3f(-1.0f,  1.0f, -1.0f);
     glEnd();
+}
+
+void DesenhaAvioes(){
+    Aviao &A = Avioes[0];
+    Ponto Curva[3];
+    Ponto Posicao;
+    //Ida
+    if(A.estaIndo){
+        Curva[0] = A.Rota[0];
+        Curva[1] = A.Rota[1];
+        Curva[2] = A.Rota[2];
+        Posicao = CalculaBezier3(Curva, A.posicaoNaRota);
+    }else{ //Volta
+        Curva[0] = A.Rota[3];
+        Curva[1] = A.Rota[4];
+        Curva[2] = A.Rota[5];
+        Posicao = CalculaBezier3(Curva, A.posicaoNaRota);
+    }
+    if(A.posicaoNaRota < 1){
+        A.posicaoNaRota += 0.01;
+    }else{
+        A.estaIndo = !A.estaIndo;
+        A.posicaoNaRota = 0.01;
+    }
+    glPushMatrix();
+    glTranslatef(Posicao.x - 0.5, Posicao.y, Posicao.z - 0.5);
+    glScalef(0.2, 0.1, 1);
+    DesenhaCubo();
+    glPopMatrix();
 }
 
 // **********************************************************************
@@ -709,8 +752,9 @@ void display( void )
 	glMatrixMode(GL_MODELVIEW);
 
     glColor3f(1,1,1);
-    // TracaBezier3Pontos();
+    TracaBezier3Pontos();
     
+    DesenhaAvioes();
     DesenhaCidade(QtdX,QtdZ);
     DesenhaPersonagem();
     VerificaColisoesCarro();

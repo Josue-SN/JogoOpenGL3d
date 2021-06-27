@@ -1,7 +1,7 @@
 Cópia resumida do enunciado:
 
 Trabalho: 
-Cenário com veículo com objetivo de colecionar itens. 
+Cenário com veículo com objetivo de colecionar itens.                       OK
 3 aviões sobrevoando com trajetos baseados em curvas paramétrica lançam bombas, atingindo predíos, ruas ou o veículo. 
 2 tipos de visualizações, 1° pessoa ou visão geral do mapa. [Alta prioridade]
 
@@ -11,21 +11,21 @@ Ruas devem ter texturas
 Pelo menos 50 prédios, cores variadas
 Mapa lido de arquivo, tabela, ou mapeditor.org
 
-Veículo: [Alta prioridade]
-Existir OK
+Veículo: [Alta prioridade]                                                  OK
+Existir                                                                     OK
 Andar sempre para frente, com opção de alterar a direção. [Alta prioridade] OK
-Movimento com MRU de 1/10 do tamanho do mapa por segundo  [Baixa prioridade]
-Mover a camera enquanto o veiculo se move                 [Alta prioridade]
+Movimento com MRU de 1/10 do tamanho do mapa por segundo  [Baixa prioridade]OK
+Mover a camera enquanto o veiculo se move                 [Alta prioridade] OK
     Camera em primeira pessoa                                               OK
-    Camera desprendida da direcao do veiculo
+    Camera desprendida da direcao do veiculo                                OK
 Veículo não pode sair do mapa                             [Baixa prioridade]OK
 Consome combustível                                       [Alta prioridade] OK
     Deve poder coletar combustível                                          OK
 
 Inimigos:
-Voam com trajetos baseados em curvas paramétricas, altura fixa  [Alta prioridade]
+Voam com trajetos baseados em curvas paramétricas, altura fixa  [Alta prioriOKde] 
 Disparam bombas que bloqueiam ruas ou destroem prédios          [Alta prioridade]
-    Hitbox única para cada prédio
+    Hitbox única para cada prédio                                           OK
 Bombas acertam veículo (citado no definição geral, porém não na definição dos inimigos) [Baixa prioridade]
 
 Opcional (2 pontos) [Baixa prioridade]
