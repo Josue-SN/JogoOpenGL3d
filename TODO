@@ -16,6 +16,8 @@ Existir OK
 Andar sempre para frente, com opção de alterar a direção. [Alta prioridade] OK
 Movimento com MRU de 1/10 do tamanho do mapa por segundo  [Baixa prioridade]
 Mover a camera enquanto o veiculo se move                 [Alta prioridade]
+    Camera em primeira pessoa                                               OK
+    Camera desprendida da direcao do veiculo
 Veículo não pode sair do mapa                             [Baixa prioridade]OK
 Consome combustível                                       [Alta prioridade] OK
     Deve poder coletar combustível                                          OK

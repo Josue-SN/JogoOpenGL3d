@@ -285,21 +285,15 @@ void animate()
     }
 }
 
+Temporizador ControladorAnimacao;
+double tempo;
 void VerificaColisoesCarro(){
+    tempo = ControladorAnimacao.getDeltaT();
     if(Carro.emMovimento){
+        double deslocamento = tempo * 20/10;
+
         glPushMatrix();
-        // glRotatef(Carro.direcao, 0, 1, 0);
-
-        // Ponto FrenteCarro = Carro.Posicao;
-        // FrenteCarro = FrenteCarro + Ponto(0,0,0.33);
-
-        // Ponto CentroCarro;
-        // Ponto NovaPosicao;
-        // CalculaPonto(Carro.Posicao, CentroCarro);
-        // CalculaPonto(FrenteCarro, NovaPosicao);
-
-        // Ponto QuantidadeAvanco = CentroCarro - NovaPosicao;
-        Ponto Avanco = Ponto(0,0,1);
+        Ponto Avanco = Ponto(0,0,deslocamento);
         Avanco.rotacionaY(Carro.direcao);
         Carro.avancaPosicao(Ponto(Avanco.x, 0, Avanco.z));
         // Carro.avancaPosicao(Ponto(QuantidadeAvanco.x, 0, QuantidadeAvanco.z));
