@@ -16,6 +16,7 @@ public:
 AABB BoundingBox;
 Ponto Posicao;
 Ponto Dir;
+bool nitro;
 // em graus, virando para a esquerda
 int direcao;
 int direcaoCamera;

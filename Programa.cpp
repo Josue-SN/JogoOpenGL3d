@@ -863,6 +863,8 @@ void keyboard ( unsigned char key, int x, int y )
             }else{
                 Carro.direcaoCamera = 345;
             }
+    case ' ':
+            Carro.nitro = !Carro.nitro;
             break;
 
     default:
@@ -938,7 +940,7 @@ int main ( int argc, char** argv )
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB );
 	glutInitWindowPosition (0,0);
 	glutInitWindowSize  ( 1280, 720 );
-	glutCreateWindow    ( "Computacao Grafica - Exemplo Basico 3D" ); 
+	glutCreateWindow    ( "Ultimate City Crawler Championship Edition: Gasoline Chase" ); 
 		
 	init ();
 	
