@@ -48,16 +48,15 @@ void IO::split(string &linha, string split[]){
 
 // int main(int argc, char const *argv[])
 // {
-//     Leitura teste;
-//     string cidade[100][100];
-//     //string teste2 = "RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN";
-//     //string teste1 = "RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN	RN";
+//     IO teste;
+//     Elemento cidade[100][100];
+//     teste.lerEntrada(30,"MAPA.txt", cidade);
+//     for(int i = 0; i < 30; i++){
+//         for(int j = 0; j < 30; j++){
+//             cout << cidade[i][j].tipo <<  " ";
+//         }
+//         cout << "\n";
+//     }
     
-    
-
-//     //cout << split[0]<< "teste";
-//     teste.lerEntrada(30, "MAPA.txt", cidade);
-
-//     f
 //     return 0;
 // }
