@@ -1,4 +1,5 @@
-
+#include <string>
+using namespace std;
 // Estruturas para armazenar as texturas de uma cidade
 
 // Constantes para indexar as texturas 
@@ -39,8 +40,8 @@ int idTexturaRua[LAST_IMG];  // vetor com os identificadores das texturas
 // **********************************************************************
 // void CarregaTexturas()
 // **********************************************************************
-void CarregaTexturas()
-{
-    for(int i=0;i<LAST_IMG;i++)
-        idTexturaRua[i] = LoadTexture(nomeTexturas[i].c_str());
-}
+// void CarregaTexturas()
+// {
+//     for(int i=0;i<LAST_IMG;i++)
+//         idTexturaRua[i] = LoadTexture(nomeTexturas[i].c_str());
+// }

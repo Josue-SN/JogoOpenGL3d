@@ -40,6 +40,9 @@ double AccumDeltaT=0;
 #include "Personagem.cpp"
 #include "AABB.cpp"
 #include "ListaDeCoresRGB.h"
+#include "IO.h"
+#include "stb_image.h"
+//#include "Elemento.h"
 
 GLfloat AspectRatio, angulo=0;
 GLfloat AlturaViewportDeMensagens = 0.2; // percentual em relacao � altura da tela
@@ -58,6 +61,30 @@ int ModoDeProjecao = 1;
 // pela tecla 'w'
 int ModoDeExibicao = 1;
 
+int comTextura = 0;
+GLuint texId;
+void carregaTextura(GLuint texID, string filePath){
+    unsigned char* imgData;
+    int largura,altura,canais;
+    
+    imgData = stbi_load(filePath.c_str(), &largura, &altura, &canais, 4);
+    if(imgData){
+        glBindTexture(GL_TEXTURE_2D, texId);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, largura, altura, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);   
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }else{
+        cout << "ERRO AO ABRIR A TEXTURA " << filePath.c_str();
+    }
+    
+
+
+}
+
 double nFrames=0;
 double TempoTotal=0;
 
@@ -74,20 +101,13 @@ int indiceCombustiveis = 0;
 // Pai ta de celta
 Personagem Carro;
 
-// Representa o conteudo de uma celula do piso
-class Elemento{
-public:
-    int tipo;
-    int cor;
-    float altura;
-    int texID;
-};
+
 
 // codigos que definem o o tipo do elemento que est� em uma c�lula
-#define VAZIO 0
-#define PREDIO 10
-#define RUA 20
-#define COMBUSTIVEL 30
+#define V 0
+#define P 10
+#define R 20
+#define C 30
 
 // Matriz que armazena informacoes sobre o que existe na cidade
 Elemento Cidade[100][100];
@@ -126,49 +146,9 @@ void CalculaPonto(Ponto p, Ponto &out) {
 // **********************************************************************
 void InicializaCidade(int QtdX, int QtdZ)
 {
-    //Tudo vazio
-    for (int i=0;i<QtdZ;i++)
-        for (int j=0;j<QtdX;j++)
-            Cidade[i][j].tipo = VAZIO;
-    //Tudo predios
-    for (int i=1;i<QtdZ;i++)
-        for (int j=1;j<QtdX;j++)
-            Cidade[i][j].tipo = PREDIO;
-    //Ruas
-    for (int i = 0; i < QtdX; i++){
-        //Canto inferior
-        Cidade[i][0].tipo = RUA;
-        Cidade[i][1].tipo = RUA;
-        Cidade[i][2].tipo = RUA;
-        //Canto superior
-        Cidade[i][QtdZ-1].tipo = RUA;
-        Cidade[i][QtdZ-2].tipo = RUA;
-        Cidade[i][QtdZ-3].tipo = RUA;
-        //Centro (horizontal)
-        Cidade[i][QtdZ/2 - 1].tipo = RUA;
-        Cidade[i][QtdZ/2    ].tipo = RUA;
-        Cidade[i][QtdZ/2 + 1].tipo = RUA;
-    }
-    for (int i = 0; i < QtdZ; i++){
-        //Canto esquerdo
-        Cidade[0][i].tipo = RUA;
-        Cidade[1][i].tipo = RUA;
-        Cidade[2][i].tipo = RUA;
-        //Canto direito
-        Cidade[QtdX-1][i].tipo = RUA;
-        Cidade[QtdX-2][i].tipo = RUA;
-        Cidade[QtdX-3][i].tipo = RUA;
-        //Centro (vertical)
-        Cidade[QtdX/2 - 1][i].tipo = RUA;
-        Cidade[QtdX/2    ][i].tipo = RUA;
-        Cidade[QtdX/2 + 1][i].tipo = RUA;
-    }
-    Cidade[1][1].tipo = COMBUSTIVEL;
-    Cidade[19][1].tipo = COMBUSTIVEL;
-    Cidade[1][19].tipo = COMBUSTIVEL;
-    Cidade[19][19].tipo = COMBUSTIVEL;
-    Cidade[10][10].tipo = COMBUSTIVEL;
-
+    IO leitor;
+    leitor.lerEntrada(QtdX, "MAPA.txt", Cidade);
+    
     Personagem Combustivel = Personagem();
     Combustivel.Posicao = Ponto(1, 0, 1);
     Combustiveis.push_back(Combustivel);
@@ -220,6 +200,10 @@ void init(void)
     glColorMaterial ( GL_FRONT, GL_AMBIENT_AND_DIFFUSE );
     glEnable(GL_DEPTH_TEST);
     glEnable (GL_CULL_FACE);
+
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glGenTextures(1, &texId);
+    carregaTextura(texId, "./TexturaAsfalto/None.png");
     
     if (ModoDeExibicao) // Faces Preenchidas??
     {
@@ -237,8 +221,8 @@ void init(void)
     
     srand((unsigned int)time(NULL));
     
-    QtdX = 21;
-    QtdZ = 21;
+    QtdX = 30;
+    QtdZ = 30;
 
     Carro.Posicao = Ponto(10, 0, 0);
     
@@ -295,31 +279,31 @@ void AvancaCarro(){
 // **********************************************************************
 Ponto CalculaBezier3(Ponto PC[], double t)
 {
-    Ponto P;
+    Ponto PAux;
     double UmMenosT = 1-t;
     
-    P =  PC[0] * UmMenosT * UmMenosT + PC[1] * 2 * UmMenosT * t + PC[2] * t*t;
+    PAux =  PC[0] * UmMenosT * UmMenosT + PC[1] * 2 * UmMenosT * t + PC[2] * t*t;
     //P.z = 5;
-    return P;
+    return PAux;
 }
 // **********************************************************************
 void TracaBezier3Pontos()
 {
     double t=0.0;
     double DeltaT = 1.0/10;
-    Ponto P;
+    Ponto PAux;
     //cout << "DeltaT: " << DeltaT << endl;
     glBegin(GL_LINE_STRIP);
     
     while(t<1.0)
     {
-        P = CalculaBezier3(Curva1, t);
-        glVertex3f(P.x, P.y, P.z);
+        PAux = CalculaBezier3(Curva1, t);
+        glVertex3f(PAux.x, PAux.y, PAux.z);
         t += DeltaT;
        // P.imprime(); cout << endl;
     }
-    P = CalculaBezier3(Curva1, 1.0); // faz o fechamento da curva
-    glVertex3f(P.x, P.y, P.z);
+    PAux = CalculaBezier3(Curva1, 1.0); // faz o fechamento da curva
+    glVertex3f(PAux.x, PAux.y, PAux.z);
     glEnd();
 }
 
@@ -443,6 +427,30 @@ void DesenhaLadrilho(int corBorda, int corDentro)
 
 }
 
+void DesenhaLadrilho(GLuint texId)
+{
+    
+    //glNewList(id, GL_COMPILE);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    glBegin ( GL_QUADS );
+        glNormal3f(0,1,0);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-0.5f,  0.0f, -0.5f);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(-0.5f,  0.0f,  0.5f);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f( 0.5f,  0.0f,  0.5f);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f( 0.5f,  0.0f, -0.5f);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    //glEndList();
+    
+    
+
+}
+
 // **********************************************************************
 // DesenhaCidade(int nLinhas, int nColunas)
 // QtdX: nro de c�lulas em X
@@ -458,15 +466,15 @@ void DesenhaCidade(int QtdX, int QtdZ)
         glPushMatrix();
         for (size_t j = 0; j < QtdZ; j++)
         {
-            if(Cidade[i][j].tipo == VAZIO){
+            if(Cidade[i][j].tipo == "V"){
                 DesenhaLadrilho(Gray, Black);
-            }else if(Cidade[i][j].tipo == RUA){
-                DesenhaLadrilho(Red, Black);
-            }else if(Cidade[i][j].tipo == PREDIO){
+            }else if(Cidade[i][j].tipo == "RN"){
+                comTextura?DesenhaLadrilho(texId):DesenhaLadrilho(White,Black);
+            }else if(Cidade[i][j].tipo == "P"){
                 DesenhaLadrilho(Gray, Black);
                 defineCor(Brown);
                 DesenhaPredio(1.2);
-            }else if(Cidade[i][j].tipo == COMBUSTIVEL){
+            }else if(Cidade[i][j].tipo == "C"){
                 DesenhaLadrilho(Red, Black);
                 
                 defineCor(Light_Purple);
@@ -659,6 +667,11 @@ void display( void )
 	
 	glMatrixMode(GL_MODELVIEW);
 
+    
+    if (glIsEnabled(GL_TEXTURE_2D))
+        cout << "TEXTURA ATIVADA";
+    
+
     glColor3f(1,1,1);
     // TracaBezier3Pontos();
     
@@ -685,14 +698,18 @@ void keyboard ( unsigned char key, int x, int y )
       exit ( 0 );   // a tecla ESC for pressionada
       break;        
     case 'p':
-            ModoDeProjecao = !ModoDeProjecao;
-            glutPostRedisplay();
-            break;
+        ModoDeProjecao = !ModoDeProjecao;
+        glutPostRedisplay();
+        break;
     case 'e':
-            ModoDeExibicao = !ModoDeExibicao;
-            init();
-            glutPostRedisplay();
-            break;
+        ModoDeExibicao = !ModoDeExibicao;
+        init();
+        glutPostRedisplay();
+        break;
+    case 't':
+        comTextura = !comTextura;
+        glutPostRedisplay();
+        break;
     default:
             cout << key;
     break;
@@ -778,7 +795,9 @@ int main ( int argc, char** argv )
 	glutSpecialFunc ( arrow_keys );
 	glutIdleFunc ( animate );
 
-	glutMainLoop ( );          
+	glutMainLoop ( );     
+    glDisable(GL_TEXTURE_2D);
+    glDeleteTextures(1, &texId);     
 	return 0; 
 }
 
